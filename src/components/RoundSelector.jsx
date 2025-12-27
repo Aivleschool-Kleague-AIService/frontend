@@ -1,17 +1,20 @@
-function RoundSelector({ selectedRound, onChangeRound }) {
+function RoundSelector({ rounds, selectedRoundId, onChangeRound }) {
+  if (!rounds || rounds.length === 0) {
+    return <p>라운드 없음</p>; // 🔥 이거 꼭 넣어
+  }
+
   return (
     <div>
-      <label>
-        라운드 선택:{" "}
-        <select
-          value={selectedRound}
-          onChange={(e) => onChangeRound(e.target.value)}
-        >
-          <option value="1R">1R | 03.02 ~ 03.04</option>
-          <option value="2R">2R | 03.08 ~ 03.10</option>
-          <option value="3R">3R | 03.15 ~ 03.17</option>
-        </select>
-      </label>
+      <select
+        value={selectedRoundId ?? ""}
+        onChange={(e) => onChangeRound(Number(e.target.value))}
+      >
+        {rounds.map((round) => (
+          <option key={round.roundId} value={round.roundId}>
+            {round.roundNumber}R | {round.startDate} ~ {round.endDate}
+          </option>
+        ))}
+      </select>
     </div>
   );
 }
