@@ -1,0 +1,47 @@
+.row {
+    display: flex;
+    align-items: center;
+    height: 88px;
+    background-color: #111;
+    border-bottom: 1px solid #222;
+    color: #e5e5e5;
+  }
+  
+  .date {
+    width: 140px;
+    text-align: center;
+    color: #aaa;
+  }
+  
+  .time {
+    width: 100px;
+    text-align: center;
+  }
+  
+  .match {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 32px;
+  }
+  
+  .team {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 160px;
+  }
+  
+  .team img {
+    width: 36px;
+    height: 36px;
+    object-fit: contain;
+  }
+  
+  .score {
+    width: 80px;
+    text-align: center;
+    font-size: 22px;
+    font-weight: bold;
+  }

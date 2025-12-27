@@ -1,0 +1,23 @@
+.header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  
+    height: 48px;
+    padding: 0 16px;
+  
+    background-color: #111;
+    border-top: 1px solid #222;
+    border-bottom: 1px solid #222;
+    color: #e5e5e5;
+  }
+  
+  .round {
+    font-size: 16px;
+    font-weight: 700;
+  }
+  
+  .period {
+    font-size: 14px;
+    color: #aaa;
+  }
