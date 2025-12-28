@@ -1,12 +1,11 @@
-function RoundSelector({ rounds, selectedRoundId, onChangeRound }) {
-  if (!rounds || rounds.length === 0) {
-    return <p>라운드 없음</p>; // 🔥 이거 꼭 넣어
-  }
+import styles from "./RoundSelector.module.css";
 
+function RoundSelector({ rounds, selectedRoundId, onChangeRound }) {
   return (
-    <div>
+    <div className={styles.wrapper}>
       <select
-        value={selectedRoundId ?? ""}
+        className={styles.select}
+        value={selectedRoundId}
         onChange={(e) => onChangeRound(Number(e.target.value))}
       >
         {rounds.map((round) => (

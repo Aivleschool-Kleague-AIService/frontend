@@ -1,0 +1,44 @@
+.wrapper {
+  position: relative;
+  display: inline-block;
+  margin: 12px 0 16px 0;
+}
+
+/* select */
+.select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+
+  background-color: #111;
+  color: #e5e5e5;
+
+  padding: 6px 40px 6px 12px; /* 오른쪽 여백 중요 */
+  border: 1px solid #222;
+  border-radius: 4px;
+
+  font-size: 14px;
+  font-weight: 500;
+
+  cursor: pointer;
+}
+
+/* 포커스 */
+.select:focus {
+  outline: none;
+  border-color: #333;
+}
+
+/* 🔽 흰색 역삼각형 */
+.wrapper::after {
+  content: "▼";
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+
+  font-size: 10px;
+  color: #fff;
+
+  pointer-events: none; /* 클릭 방해 ❌ */
+}
