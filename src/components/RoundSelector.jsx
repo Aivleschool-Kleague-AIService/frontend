@@ -5,7 +5,7 @@ function RoundSelector({ rounds, selectedRoundId, onChangeRound }) {
     <div className={styles.wrapper}>
       <select
         className={styles.select}
-        value={selectedRoundId}
+        value={selectedRoundId ?? ""}
         onChange={(e) => onChangeRound(Number(e.target.value))}
       >
         {rounds.map((round) => (
