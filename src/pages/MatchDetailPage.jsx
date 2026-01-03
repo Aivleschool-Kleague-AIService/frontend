@@ -1,15 +1,23 @@
-import { useParams } from "react-router-dom";
+import MatchMetaBar from "../components/match/MatchMetaBar";
+import MatchSummary from "../components/match/MatchSummary";
+import TimeController from "../components/match/TimeController";
 
 function MatchDetailPage() {
-  const { matchId } = useParams();
-
   return (
-    <div style={{ color: "#fff", padding: "16px" }}>
-      <h2>Match Detail</h2>
-      <p>matchId: {matchId}</p>
-      <p>(분석 페이지는 추후 구현)</p>
+    <div style={styles.page}>
+      <MatchMetaBar />
+      <MatchSummary />
+      <TimeController />
     </div>
   );
 }
+
+const styles = {
+  page: {
+    minHeight: "100vh",
+    background: "#1c1c1c",
+    color: "#fff",
+  },
+};
 
 export default MatchDetailPage;
