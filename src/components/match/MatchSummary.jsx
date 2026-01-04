@@ -1,7 +1,7 @@
 import WinProbabilityBar from "./WinProbabilityBar";
+import GoalProbabilityBar from "./GoalProbabilityBar";
 
 function MatchSummary({ probability }) {
-  // ✅ 안전장치 (매우 중요)
   if (!probability) return null;
 
   return (
@@ -22,13 +22,27 @@ function MatchSummary({ probability }) {
         </div>
       </div>
 
-      {/* ⭐ 핵심 승률 바 */}
+      {/* 승률 분포 */}
       <WinProbabilityBar
         home={probability.home}
         draw={probability.draw}
         away={probability.away}
         minute={probability.minute}
       />
+
+      {/* ⭐ 골 확률 (홈 / 원정) */}
+      <div style={{ marginTop: "20px" }}>
+        <GoalProbabilityBar
+          label="홈팀 골 확률"
+          value={probability.homeGoal}
+          color="#e74c3c"
+        />
+        <GoalProbabilityBar
+          label="원정팀 골 확률"
+          value={probability.awayGoal}
+          color="#3498db"
+        />
+      </div>
     </div>
   );
 }

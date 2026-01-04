@@ -10,33 +10,43 @@ function MatchDetailPage() {
 
   // 재생 로직
   useEffect(() => {
-    if (!playing) return;
+    if (!playing || minute >= 90) return;
 
     const timer = setInterval(() => {
-      setMinute((prev) => {
-        if (prev >= 90) {
-          setPlaying(false);
-          return prev;
-        }
-        return prev + 1;
-      });
-    }, 500); // 0.5초 = 1분
+      setMinute((prev) => prev + 1);
+    }, 500);
 
     return () => clearInterval(timer);
-  }, [playing]);
+  }, [playing, minute]);
 
   const currentProb = probabilityTimeline[minute];
+
+  const handleTogglePlay = () => {
+    if (minute >= 90) setMinute(0);
+    setPlaying((p) => !p);
+  };
+
+  const handleReset = () => {
+    setPlaying(false);
+    setMinute(0);
+  };
+
+  // ✅ [추가] 슬라이더로 minute 변경
+  const handleChangeMinute = (value) => {
+    setPlaying(false);   // 슬라이더 조작 시 재생 중지
+    setMinute(value);
+  };
 
   return (
     <div style={{ minHeight: "100vh", background: "#1c1c1c", color: "#fff" }}>
       <MatchMetaBar />
-
       <MatchSummary probability={currentProb} />
-
       <TimeController
         minute={minute}
         playing={playing}
-        onToggle={() => setPlaying((p) => !p)}
+        onToggle={handleTogglePlay}
+        onReset={handleReset}
+        onChangeMinute={handleChangeMinute}
       />
     </div>
   );
