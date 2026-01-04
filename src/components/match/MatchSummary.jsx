@@ -1,31 +1,34 @@
 import WinProbabilityBar from "./WinProbabilityBar";
 
-function MatchSummary() {
+function MatchSummary({ probability }) {
+  // ✅ 안전장치 (매우 중요)
+  if (!probability) return null;
+
   return (
     <div style={styles.wrapper}>
-      {/* 경기 날짜 */}
       <div style={styles.date}>2025/02/15 (토) 13:00</div>
 
-      {/* 팀 + 스코어 */}
       <div style={styles.scoreRow}>
-        {/* 홈팀 */}
         <div style={styles.team}>
           <img src="/default-team.png" alt="" style={styles.logo} />
           <span>포항 스틸러스</span>
         </div>
 
-        {/* 스코어 */}
         <div style={styles.score}>0 - 3</div>
 
-        {/* 원정팀 */}
         <div style={styles.team}>
           <span>대전 하나 시티즌</span>
           <img src="/default-team.png" alt="" style={styles.logo} />
         </div>
       </div>
 
-      {/* 승률 막대바 */}
-      <WinProbabilityBar />
+      {/* ⭐ 핵심 승률 바 */}
+      <WinProbabilityBar
+        home={probability.home}
+        draw={probability.draw}
+        away={probability.away}
+        minute={probability.minute}
+      />
     </div>
   );
 }
