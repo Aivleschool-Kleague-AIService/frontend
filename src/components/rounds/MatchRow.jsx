@@ -20,7 +20,11 @@ function MatchRow({ match }) {
   return (
     <div
       className={styles.row}
-      onClick={() => navigate(`/matches/${match.matchId}`)}
+      onClick={() =>
+        navigate(`/matches/${match.matchId}`, {
+          state: { match }, // ✅ [추가]
+        })
+      }
     >
       {/* 날짜 */}
       <div className={styles.date}>{date}</div>

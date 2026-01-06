@@ -1,28 +1,44 @@
 import WinProbabilityBar from "./WinProbabilityBar";
 import GoalProbabilityBar from "./GoalProbabilityBar";
 
-function MatchSummary({ probability }) {
-  if (!probability) return null;
+function MatchSummary({ match, probability }) {
+  if (!match || !probability) return null;
+
+  const d = new Date(match.matchDate);
+  const dateText = `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, "0")}.${String(
+    d.getDate()
+  ).padStart(2, "0")} ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
 
   return (
     <div style={styles.wrapper}>
-      <div style={styles.date}>2025/02/15 (토) 13:00</div>
+      <div style={styles.date}>{dateText}</div>
 
       <div style={styles.scoreRow}>
         <div style={styles.team}>
-          <img src="/default-team.png" alt="" style={styles.logo} />
-          <span>포항 스틸러스</span>
+          <img
+            src={match.homeTeam.logoUrl}
+            alt=""
+            style={styles.logo}
+            onError={(e) => (e.currentTarget.src = "/default-team.png")}
+          />
+          <span>{match.homeTeam.name}</span>
         </div>
 
-        <div style={styles.score}>0 - 3</div>
+        <div style={styles.score}>
+          {match.finalScore.home} - {match.finalScore.away}
+        </div>
 
         <div style={styles.team}>
-          <span>대전 하나 시티즌</span>
-          <img src="/default-team.png" alt="" style={styles.logo} />
+          <span>{match.awayTeam.name}</span>
+          <img
+            src={match.awayTeam.logoUrl}
+            alt=""
+            style={styles.logo}
+            onError={(e) => (e.currentTarget.src = "/default-team.png")}
+          />
         </div>
       </div>
 
-      {/* 승률 분포 */}
       <WinProbabilityBar
         home={probability.home}
         draw={probability.draw}
@@ -30,18 +46,9 @@ function MatchSummary({ probability }) {
         minute={probability.minute}
       />
 
-      {/* ⭐ 골 확률 (홈 / 원정) */}
       <div style={{ marginTop: "20px" }}>
-        <GoalProbabilityBar
-          label="홈팀 골 확률"
-          value={probability.homeGoal}
-          color="#e74c3c"
-        />
-        <GoalProbabilityBar
-          label="원정팀 골 확률"
-          value={probability.awayGoal}
-          color="#3498db"
-        />
+        <GoalProbabilityBar label="홈팀 골 확률" value={probability.homeGoal} color="#e74c3c" />
+        <GoalProbabilityBar label="원정팀 골 확률" value={probability.awayGoal} color="#3498db" />
       </div>
     </div>
   );
@@ -63,6 +70,7 @@ const styles = {
     alignItems: "center",
     gap: "48px",
     marginBottom: "24px",
+    flexWrap: "wrap",
   },
   team: {
     display: "flex",
@@ -73,6 +81,7 @@ const styles = {
   logo: {
     width: "48px",
     height: "48px",
+    objectFit: "contain",
   },
   score: {
     fontSize: "36px",

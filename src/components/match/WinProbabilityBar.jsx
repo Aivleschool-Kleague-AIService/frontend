@@ -1,14 +1,21 @@
 function WinProbabilityBar({ home, draw, away, minute }) {
   return (
     <div style={styles.container}>
+      {/* ✅ [추가] 그래프 설명 라벨 */}
+      <div style={styles.title}>
+        승리 확률 <span style={styles.minute}>({minute}분)</span>
+      </div>
+
+      {/* 확률 바 */}
       <div style={styles.bar}>
         <div style={{ ...styles.home, width: `${home}%` }} />
         <div style={{ ...styles.draw, width: `${draw}%` }} />
         <div style={{ ...styles.away, width: `${away}%` }} />
       </div>
 
+      {/* 수치 라벨 */}
       <div style={styles.label}>
-        {minute}' 홈 {home.toFixed(0)}% | 무 {draw.toFixed(0)}% | 원정{" "}
+        홈 {home.toFixed(0)}% | 무 {draw.toFixed(0)}% | 원정{" "}
         {away.toFixed(0)}%
       </div>
     </div>
@@ -18,7 +25,19 @@ function WinProbabilityBar({ home, draw, away, minute }) {
 const styles = {
   container: {
     maxWidth: "600px",
-    margin: "0 auto",
+    margin: "24px auto 0",
+  },
+  title: {
+    marginBottom: "6px",
+    fontSize: "14px",
+    fontWeight: "bold",
+    opacity: 0.95,
+    textAlign: "center",
+  },
+  minute: {
+    fontSize: "12px",
+    opacity: 0.7,
+    marginLeft: "4px",
   },
   bar: {
     display: "flex",

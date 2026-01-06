@@ -40,7 +40,13 @@ function RoundsPage() {
       {loading && <div style={{ color: "#aaa" }}>로딩 중...</div>}
 
       {!loading && currentRound && (
-        <RoundSection round={currentRound} matches={matches} />
+        <RoundSection
+          round={currentRound}
+          matches={matches.map(match => ({
+            ...match,
+            round: currentRound, // ✅ round 정보 주입
+          }))}
+        />
       )}
     </div>
   );
