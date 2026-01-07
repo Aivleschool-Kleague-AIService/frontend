@@ -1,21 +1,18 @@
 import { useEffect, useState } from "react";
-import { useLocation, useParams, useNavigate } from "react-router-dom"; // ✅ [추가]
+import { useLocation, useParams, useNavigate } from "react-router-dom";
 import MatchMetaBar from "../components/match/MatchMetaBar";
 import MatchSummary from "../components/match/MatchSummary";
-import TimeController from "../components/match/TimeController";
+import TeamStatsSection from "../components/match/TeamStatsSection"; // ✅ 추가
 import { probabilityTimeline } from "../data/mockProbability";
-
-
+import { teamStats } from "../data/mockTeamStats"; // ✅ 추가
+import TeamStatsTable from "../components/match/TeamStatsTable";
 
 function MatchDetailPage() {
   const { matchId } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
 
-  // ✅ [추가] rounds에서 전달된 match
   const match = location.state?.match;
-
-  console.log("match from state:", match);
 
   const [minute, setMinute] = useState(0);
   const [playing, setPlaying] = useState(false);
@@ -47,33 +44,33 @@ function MatchDetailPage() {
     setMinute(value);
   };
 
-  // ✅ [추가] 새로고침 등으로 state가 없을 때 방어
   if (!match) {
     return (
-      <div style={{ minHeight: "100vh", background: "#1c1c1c", color: "#fff", padding: "16px" }}>
-        <h2>경기 정보를 불러올 수 없어요.</h2>
-        <p>라운드 페이지에서 경기를 다시 선택해 주세요.</p>
-        <button onClick={() => navigate("/rounds")} style={{ padding: "8px 12px" }}>
-          라운드로 돌아가기
-        </button>
-        <p style={{ opacity: 0.7, marginTop: "12px" }}>matchId: {matchId}</p>
+      <div style={{ background: "#1c1c1c", color: "#fff", padding: "16px" }}>
+        <h2>경기 정보를 불러올 수 없습니다.</h2>
+        <button onClick={() => navigate("/rounds")}>라운드로 이동</button>
+        <p>matchId: {matchId}</p>
       </div>
     );
   }
 
   return (
     <div style={{ minHeight: "100vh", background: "#1c1c1c", color: "#fff" }}>
-      <MatchMetaBar match={match} />
-  
-      <MatchSummary match={match} probability={currentProb} />
-  
-      <TimeController
+      {/* 상단 경기 정보 + 컨트롤 */}
+      <MatchMetaBar
+        match={match}
         minute={minute}
         playing={playing}
         onToggle={handleTogglePlay}
         onReset={handleReset}
         onChangeMinute={handleChangeMinute}
       />
+
+      {/* 확률 요약 */}
+      <MatchSummary match={match} probability={currentProb} />
+
+      {/* ✅ 팀 스탯 섹션 (더미 데이터 기반) */}
+      <TeamStatsTable match={match} stats={teamStats} />
     </div>
   );
 }
