@@ -2,10 +2,9 @@ import { useEffect, useState } from "react";
 import { useLocation, useParams, useNavigate } from "react-router-dom";
 import MatchMetaBar from "../components/match/MatchMetaBar";
 import MatchSummary from "../components/match/MatchSummary";
-import TeamStatsSection from "../components/match/TeamStatsSection"; // ✅ 추가
-import { probabilityTimeline } from "../data/mockProbability";
-import { teamStats } from "../data/mockTeamStats"; // ✅ 추가
 import TeamStatsTable from "../components/match/TeamStatsTable";
+import { probabilityTimeline } from "../data/mockProbability";
+import { getMatchTeamSummary } from "../api/matchApi";
 
 function MatchDetailPage() {
   const { matchId } = useParams();
@@ -16,7 +15,9 @@ function MatchDetailPage() {
 
   const [minute, setMinute] = useState(0);
   const [playing, setPlaying] = useState(false);
+  const [teamSummary, setTeamSummary] = useState(null);
 
+  // ▶ 재생 로직
   useEffect(() => {
     if (!playing || minute >= 90) return;
 
@@ -26,6 +27,15 @@ function MatchDetailPage() {
 
     return () => clearInterval(timer);
   }, [playing, minute]);
+
+  // ▶ 팀 요약 백엔드 연동
+  useEffect(() => {
+    if (!matchId) return;
+
+    getMatchTeamSummary(matchId)
+      .then(setTeamSummary)
+      .catch(console.error);
+  }, [matchId]);
 
   const currentProb = probabilityTimeline[minute];
 
@@ -69,8 +79,10 @@ function MatchDetailPage() {
       {/* 확률 요약 */}
       <MatchSummary match={match} probability={currentProb} />
 
-      {/* ✅ 팀 스탯 섹션 (더미 데이터 기반) */}
-      <TeamStatsTable match={match} stats={teamStats} />
+      {/* 팀 비교 분석 (백엔드 데이터) */}
+      {teamSummary && (
+        <TeamStatsTable match={match} stats={teamSummary} />
+      )}
     </div>
   );
 }

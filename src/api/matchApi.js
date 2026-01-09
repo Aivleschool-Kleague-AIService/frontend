@@ -8,3 +8,8 @@ export const getMatchesByRound = async (roundId) => {
   const res = await api.get(`/rounds/${roundId}/matches`);
   return res.data;
 };
+
+export const getMatchTeamSummary = async (matchId) => {
+  const res = await api.get(`/matches/${matchId}/team-summary`);
+  return res.data;
+};
