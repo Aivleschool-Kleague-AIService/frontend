@@ -1,22 +1,32 @@
+// src/components/match/WinProbabilityBar.jsx
+
 function WinProbabilityBar({ home, draw, away, minute }) {
+  // ❗ 전부 없으면 렌더링 X
+  if (home == null && draw == null && away == null) return null;
+
+  const h = Number(home) || 0;
+  const d = Number(draw) || 0;
+  const a = Number(away) || 0;
+
+  const clamp = (v) => Math.max(0, Math.min(100, v));
+
   return (
     <div style={styles.container}>
-      {/* ✅ [추가] 그래프 설명 라벨 */}
       <div style={styles.title}>
-        승리 확률 <span style={styles.minute}>({minute}분)</span>
+        승리 확률
+        {minute !== undefined && (
+          <span style={styles.minute}> ({minute}분)</span>
+        )}
       </div>
 
-      {/* 확률 바 */}
       <div style={styles.bar}>
-        <div style={{ ...styles.home, width: `${home}%` }} />
-        <div style={{ ...styles.draw, width: `${draw}%` }} />
-        <div style={{ ...styles.away, width: `${away}%` }} />
+        <div style={{ ...styles.home, width: `${clamp(h)}%` }} />
+        <div style={{ ...styles.draw, width: `${clamp(d)}%` }} />
+        <div style={{ ...styles.away, width: `${clamp(a)}%` }} />
       </div>
 
-      {/* 수치 라벨 */}
       <div style={styles.label}>
-        홈 {home.toFixed(0)}% | 무 {draw.toFixed(0)}% | 원정{" "}
-        {away.toFixed(0)}%
+        홈 {h.toFixed(0)}% | 무 {d.toFixed(0)}% | 원정 {a.toFixed(0)}%
       </div>
     </div>
   );

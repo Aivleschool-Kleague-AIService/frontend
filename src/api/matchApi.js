@@ -13,3 +13,14 @@ export const getMatchTeamSummary = async (matchId) => {
   const res = await api.get(`/matches/${matchId}/team-summary`);
   return res.data;
 };
+
+export const getMatchGoalProbabilities = async (matchId) => {
+  const res = await api.get(`/matches/${matchId}/goal-probabilities`);
+  return res.data;
+};
+
+// ✅ 승률 타임라인 API 추가
+export const getMatchWinProbabilities = async (matchId) => {
+  const res = await api.get(`/matches/${matchId}/win-probabilities`);
+  return res.data;
+};
