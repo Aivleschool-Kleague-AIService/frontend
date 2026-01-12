@@ -35,15 +35,7 @@ function TeamStatsTable({ match, stats }) {
           </thead>
 
           <tbody>
-            <tr>
-              <td style={styles.metric}>AI 예측 승률</td>
-              <td style={styles.value}>
-                {toPercent(stats.home.aiWinProbability)}
-              </td>
-              <td style={styles.value}>
-                {toPercent(stats.away.aiWinProbability)}
-              </td>
-            </tr>
+            
 
             <tr>
               <td style={styles.metric}>팀 컬러</td>
