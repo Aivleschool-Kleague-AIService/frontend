@@ -24,14 +24,19 @@ function Header() {
   return (
     <header className="header">
       <div className="header-inner">
-        <div className="header-left" onClick={() => navigate("/rounds")}>
+        <button
+          className="header-left"
+          type="button"
+          onClick={() => navigate("/rounds")}
+          aria-label="K리그 경기 일정으로 이동"
+        >
           <img
             src="/kleague-logo.png"
             alt="K League"
             className="kleague-logo"
           />
           <span className="league-text">K LEAGUE 1</span>
-        </div>
+        </button>
 
         <div className="header-teams">
           {TEAM_LOGOS.map((src) => (

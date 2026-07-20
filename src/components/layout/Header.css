@@ -3,11 +3,11 @@
 .header {
   display: flex;
   align-items: center;
-  justify-content: center;        /* ✅ 전체를 중앙 기준으로 */
+  justify-content: center;
   height: 88px;
-  padding: 0 48px;                /* ✅ 좌우 여백 더 확보 */
-  background: linear-gradient(to bottom, #1c1c1c, #121212);
-  border-bottom: 1px solid #222;
+  padding: 0 var(--space-4);
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
 }
 
 /* 내부 컨텐츠 래퍼 */
@@ -15,13 +15,18 @@
   display: flex;
   align-items: center;
   width: 100%;
-  max-width: 1400px;              /* ✅ 좌우 여백 균형 핵심 */
+  max-width: var(--content-width);
+  min-width: 0;
 }
 
 /* 좌측 로고 영역 */
 .header-left {
   display: flex;
   align-items: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
   cursor: pointer;
 }
 
@@ -30,10 +35,10 @@
 }
 
 .league-text {
-  margin-left: 12px;
+  margin-left: var(--space-2);
   font-size: 18px;
   font-weight: bold;
-  color: #fff;
+  color: var(--color-text);
   letter-spacing: 0.5px;
 }
 
@@ -41,8 +46,8 @@
 .header-teams {
   display: flex;
   align-items: center;
-  gap: 25px;
-  margin-left: 48px;              /* ✅ 로고 시작 위치 오른쪽 이동 */
+  gap: var(--space-4);
+  margin-left: var(--space-6);
   overflow: hidden;
 }
 
@@ -55,4 +60,29 @@
 .team-logo:hover {
   transform: scale(1.15);
   opacity: 1;
+}
+
+@media (max-width: 767px) {
+  .header {
+    height: 72px;
+    padding: 0 var(--space-3);
+  }
+
+  .kleague-logo {
+    height: 52px;
+  }
+
+  .league-text {
+    font-size: 16px;
+  }
+
+  .header-teams {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .team-logo {
+    transition: none;
+  }
 }
