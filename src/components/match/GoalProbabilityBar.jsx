@@ -1,51 +1,24 @@
-function GoalProbabilityBar({ label, value, color }) {
+import styles from "./GoalProbabilityBar.module.css";
+
+function GoalProbabilityBar({ label, value, variant }) {
   if (value === undefined || value === null) return null;
 
-  // ✅ 0~1 → 0~100 변환
   const percent = Math.max(0, Math.min(100, value * 100));
 
   return (
-    <div style={styles.container}>
-      <div style={styles.header}>
+    <div className={styles.container}>
+      <div className={styles.header}>
         <span>{label}</span>
-        <span>{percent.toFixed(1)}%</span>
+        <strong>{percent.toFixed(1)}%</strong>
       </div>
-
-      <div style={styles.bar}>
-        <div
-          style={{
-            ...styles.fill,
-            width: `${percent}%`,
-            background: color,
-          }}
-        />
-      </div>
+      <progress
+        className={`${styles.bar} ${styles[variant]}`}
+        value={percent}
+        max="100"
+        aria-label={`${label} ${percent.toFixed(1)}퍼센트`}
+      />
     </div>
   );
 }
-
-const styles = {
-  container: {
-    maxWidth: "600px",
-    margin: "10px auto 0",
-  },
-  header: {
-    display: "flex",
-    justifyContent: "space-between",
-    fontSize: "13px",
-    marginBottom: "4px",
-    opacity: 0.9,
-  },
-  bar: {
-    height: "12px",
-    background: "#444",
-    borderRadius: "6px",
-    overflow: "hidden",
-  },
-  fill: {
-    height: "100%",
-    transition: "width 0.4s ease",
-  },
-};
 
 export default GoalProbabilityBar;

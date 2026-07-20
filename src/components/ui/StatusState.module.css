@@ -1,0 +1,110 @@
+.loading {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.skeleton {
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr) 64px minmax(0, 1fr);
+  align-items: center;
+  gap: var(--space-4);
+  min-height: 88px;
+  padding: var(--space-3) var(--space-4);
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  background: var(--color-surface);
+}
+
+.skeleton span {
+  display: block;
+  height: 18px;
+  border-radius: var(--radius-control);
+  background: var(--color-surface-hover);
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
+.skeletonTime {
+  width: 52px;
+}
+
+.skeletonTeam {
+  width: min(100%, 180px);
+}
+
+.skeletonScore {
+  width: 56px;
+}
+
+.panel {
+  display: grid;
+  justify-items: center;
+  min-height: 220px;
+  padding: var(--space-6) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  background: var(--color-surface);
+  text-align: center;
+}
+
+.title {
+  align-self: end;
+  font-size: 18px;
+}
+
+.message {
+  max-width: 480px;
+  margin: var(--space-1) 0 var(--space-3);
+  color: var(--color-muted);
+}
+
+.retryButton {
+  align-self: start;
+  min-height: 44px;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--color-accent);
+  border-radius: var(--radius-control);
+  background: transparent;
+  color: var(--color-accent);
+  font-weight: 700;
+}
+
+.retryButton:hover {
+  background: var(--color-surface-hover);
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
+
+@media (max-width: 600px) {
+  .skeleton {
+    grid-template-columns: 48px minmax(0, 1fr) 48px;
+    gap: var(--space-2);
+    min-height: 104px;
+    padding: var(--space-3);
+  }
+
+  .skeletonTeam:last-child {
+    display: none;
+  }
+}

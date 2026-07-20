@@ -3,11 +3,11 @@
 .header {
   display: flex;
   align-items: center;
-  justify-content: center;        /* ✅ 전체를 중앙 기준으로 */
-  height: 88px;
-  padding: 0 48px;                /* ✅ 좌우 여백 더 확보 */
-  background: linear-gradient(to bottom, #1c1c1c, #121212);
-  border-bottom: 1px solid #222;
+  justify-content: center;
+  height: 72px;
+  padding: 0 var(--space-4);
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
 }
 
 /* 내부 컨텐츠 래퍼 */
@@ -15,39 +15,53 @@
   display: flex;
   align-items: center;
   width: 100%;
-  max-width: 1400px;              /* ✅ 좌우 여백 균형 핵심 */
+  max-width: var(--content-width);
+  min-width: 0;
 }
 
-/* 좌측 로고 영역 */
+/* 서비스 이름 영역 */
 .header-left {
   display: flex;
+  flex: 0 0 auto;
+  min-height: 44px;
   align-items: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
   cursor: pointer;
 }
 
-.kleague-logo {
-  height: 66px;
-}
-
 .league-text {
-  margin-left: 12px;
-  font-size: 18px;
-  font-weight: bold;
-  color: #fff;
-  letter-spacing: 0.5px;
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--color-text);
+  letter-spacing: 0.08em;
 }
 
 /* 팀 로고 영역 */
 .header-teams {
   display: flex;
+  min-width: 0;
+  flex: 1;
   align-items: center;
-  gap: 25px;
-  margin-left: 48px;              /* ✅ 로고 시작 위치 오른쪽 이동 */
+  gap: var(--space-2);
+  margin-left: var(--space-4);
   overflow: hidden;
 }
 
+.team-logo-frame {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  flex: 0 0 40px;
+  place-items: center;
+}
+
 .team-logo {
-  height: 36px;
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
   opacity: 0.85;
   transition: transform 0.15s ease, opacity 0.15s ease;
 }
@@ -55,4 +69,25 @@
 .team-logo:hover {
   transform: scale(1.15);
   opacity: 1;
+}
+
+@media (max-width: 767px) {
+  .header {
+    height: 64px;
+    padding: 0 var(--space-3);
+  }
+
+  .league-text {
+    font-size: 18px;
+  }
+
+  .header-teams {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .team-logo {
+    transition: none;
+  }
 }

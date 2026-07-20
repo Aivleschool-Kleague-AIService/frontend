@@ -1,75 +1,54 @@
 import { useEffect, useState } from "react";
 import { useLocation, useParams, useNavigate } from "react-router-dom";
-import MatchMetaBar from "../components/match/MatchMetaBar";
+import TimelineController from "../components/match/TimelineController";
+import MatchHeader from "../components/match/MatchHeader";
 import MatchSummary from "../components/match/MatchSummary";
-import TeamStatsTable from "../components/match/TeamStatsTable";
-import {
-  getMatchTeamSummary,
-  getMatchGoalProbabilities,
-  getMatchWinProbabilities,
-} from "../api/matchApi";
+import ProbabilityChart from "../components/match/ProbabilityChart";
+import LoadingState from "../components/ui/LoadingState";
+import ErrorState from "../components/ui/ErrorState";
+import EmptyState from "../components/ui/EmptyState";
+import styles from "./MatchDetailPage.module.css";
+import useMatchDetail from "../features/matches/hooks/useMatchDetail";
 
 function MatchDetailPage() {
   const { matchId } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
 
-  const match = location.state?.match;
+  const initialMatch = location.state?.match ?? null;
 
   const [minute, setMinute] = useState(0);
   const [playing, setPlaying] = useState(false);
 
-  const [teamSummary, setTeamSummary] = useState(null);
-  const [goalTimeline, setGoalTimeline] = useState([]);
-  const [winTimeline, setWinTimeline] = useState([]);
+  const {
+    match,
+    goalTimeline,
+    winTimeline,
+    loading,
+    error,
+    empty,
+    retry,
+  } = useMatchDetail(matchId, initialMatch);
 
-  /* 팀 요약 */
-  useEffect(() => {
-    if (!matchId) return;
-    getMatchTeamSummary(matchId)
-      .then(setTeamSummary)
-      .catch(console.error);
-  }, [matchId]);
-
-  /* 골 확률 */
-  useEffect(() => {
-    if (!matchId) return;
-    getMatchGoalProbabilities(matchId)
-      .then((res) => {
-        setGoalTimeline(res.timeline ?? []);
-      })
-      .catch(console.error);
-  }, [matchId]);
-
-  /* 승률 */
-  useEffect(() => {
-    if (!matchId) return;
-    getMatchWinProbabilities(matchId)
-      .then((res) => {
-        setWinTimeline(res.timeline ?? []);
-      })
-      .catch(console.error);
-  }, [matchId]);
-
-  /* 최대 분 */
   const maxMinute = Math.max(
-    goalTimeline.length > 0
-      ? goalTimeline[goalTimeline.length - 1].minute
-      : 0,
-    winTimeline.length > 0
-      ? winTimeline[winTimeline.length - 1].minute
-      : 0
+    ...goalTimeline.map((point) => Number(point.minute) || 0),
+    ...winTimeline.map((point) => point.minute),
+    0
   );
 
-  /* 재생 */
   useEffect(() => {
     if (!playing || minute >= maxMinute) return;
 
-    const timer = setInterval(() => {
-      setMinute((prev) => prev + 1);
+    const timer = setTimeout(() => {
+      const nextMinute = Math.min(minute + 1, maxMinute);
+      setMinute(nextMinute);
+
+      if (nextMinute >= maxMinute) {
+        setPlaying(false);
+      }
     }, 500);
 
-    return () => clearInterval(timer);
+    return () => clearTimeout(timer);
   }, [playing, minute, maxMinute]);
 
   /* 현재 분 데이터 */
@@ -77,57 +56,29 @@ function MatchDetailPage() {
     goalTimeline.find((p) => p.minute === minute) ?? null;
 
   const currentWin =
-    winTimeline.find((p) => p.minute === minute) ?? null;
+    winTimeline.find((point) => point.minute === minute) ?? null;
 
   const currentProb =
     currentGoal || currentWin
       ? {
           minute,
-
-          // 골 확률
-          homeGoalProbability:
-            currentGoal?.homeGoalProbability ??
-            currentGoal?.home_goal_probability ??
-            null,
-
-          awayGoalProbability:
-            currentGoal?.awayGoalProbability ??
-            currentGoal?.away_goal_probability ??
-            null,
-
-          // ✅ 승률: 무조건 퍼센트로 변환
-          home:
-            currentWin?.homeWinProbability != null
-              ? currentWin.homeWinProbability * 100
-              : currentWin?.home != null
-              ? currentWin.home * 100
-              : currentWin?.home_win_probability != null
-              ? currentWin.home_win_probability * 100
-              : null,
-
-          draw:
-            currentWin?.drawWinProbability != null
-              ? currentWin.drawWinProbability * 100
-              : currentWin?.draw != null
-              ? currentWin.draw * 100
-              : currentWin?.draw_win_probability != null
-              ? currentWin.draw_win_probability * 100
-              : null,
-
-          away:
-            currentWin?.awayWinProbability != null
-              ? currentWin.awayWinProbability * 100
-              : currentWin?.away != null
-              ? currentWin.away * 100
-              : currentWin?.away_win_probability != null
-              ? currentWin.away_win_probability * 100
-              : null,
+          homeGoalProbability: currentGoal?.homeGoalProbability ?? null,
+          awayGoalProbability: currentGoal?.awayGoalProbability ?? null,
+          home: currentWin?.home ?? null,
+          draw: currentWin?.draw ?? null,
+          away: currentWin?.away ?? null,
         }
       : null;
 
   const handleTogglePlay = () => {
+    if (playing) {
+      setPlaying(false);
+      return;
+    }
+
+    if (maxMinute <= 0) return;
     if (minute >= maxMinute) setMinute(0);
-    setPlaying((p) => !p);
+    setPlaying(true);
   };
 
   const handleReset = () => {
@@ -140,35 +91,57 @@ function MatchDetailPage() {
     setMinute(value);
   };
 
-  if (!match) {
-    return (
-      <div style={{ background: "#1c1c1c", color: "#fff", padding: "16px" }}>
-        <h2>경기 정보를 불러올 수 없습니다.</h2>
-        <button onClick={() => navigate("/rounds")}>라운드로 이동</button>
-        <p>matchId: {matchId}</p>
-      </div>
-    );
-  }
-
   return (
-    <div style={{ minHeight: "100vh", background: "#1c1c1c", color: "#fff" }}>
-      <MatchMetaBar
-        match={match}
-        minute={minute}
-        playing={playing}
-        onToggle={handleTogglePlay}
-        onReset={handleReset}
-        onChangeMinute={handleChangeMinute}
-        maxMinute={maxMinute}
-      />
+    <div className={styles.page}>
+      <button
+        className={styles.backButton}
+        type="button"
+        onClick={() => navigate("/rounds")}
+      >
+        ← {match?.round?.roundNumber ? `${match.round.roundNumber}R ` : ""}경기 목록
+      </button>
 
-      {currentProb && (
-        <MatchSummary match={match} probability={currentProb} />
-      )}
+      <div className={styles.content}>
+        {match && <MatchHeader match={match} />}
 
-      {teamSummary && (
-        <TeamStatsTable match={match} stats={teamSummary} />
-      )}
+        {loading && <LoadingState label="경기 분석 데이터를 불러오는 중입니다." />}
+
+        {!loading && error && <ErrorState message={error} onRetry={retry} />}
+
+        {!loading && !error && empty && (
+          <EmptyState message="이 경기에 등록된 분석 데이터가 없습니다." />
+        )}
+
+        {!loading && !error && !empty && match && (
+          <>
+            <TimelineController
+              minute={minute}
+              maxMinute={maxMinute}
+              playing={playing}
+              onToggle={handleTogglePlay}
+              onReset={handleReset}
+              onChangeMinute={handleChangeMinute}
+            />
+
+            {currentProb && (
+              <MatchSummary match={match} probability={currentProb} />
+            )}
+
+            {!currentProb && (
+              <div className={styles.probabilityPlaceholder} role="status">
+                선택한 시간의 확률 데이터가 없습니다.
+              </div>
+            )}
+
+            <ProbabilityChart
+              timeline={winTimeline}
+              minute={minute}
+              maxMinute={maxMinute}
+              onChangeMinute={handleChangeMinute}
+            />
+          </>
+        )}
+      </div>
     </div>
   );
 }
