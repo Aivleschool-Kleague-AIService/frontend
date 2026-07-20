@@ -1,0 +1,18 @@
+.summary {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.goalSection {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  background: var(--color-surface);
+}
+
+.goalTitle {
+  margin-bottom: var(--space-1);
+  font-size: 18px;
+}

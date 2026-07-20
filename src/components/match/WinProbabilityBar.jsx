@@ -1,7 +1,7 @@
-// src/components/match/WinProbabilityBar.jsx
+import styles from "./WinProbabilityBar.module.css";
+import { formatMatchMinute } from "../../features/matches/utils/formatMatchMinute";
 
 function WinProbabilityBar({ home, draw, away, minute }) {
-  // ❗ 전부 없으면 렌더링 X
   if (home == null && draw == null && away == null) return null;
 
   const h = Number(home) || 0;
@@ -9,71 +9,48 @@ function WinProbabilityBar({ home, draw, away, minute }) {
   const a = Number(away) || 0;
 
   const clamp = (v) => Math.max(0, Math.min(100, v));
+  const homePercent = clamp(h);
+  const drawPercent = clamp(d);
+  const awayPercent = clamp(a);
+  const accessibleText = `홈 승리 ${homePercent.toFixed(0)}퍼센트, 무승부 ${drawPercent.toFixed(0)}퍼센트, 원정 승리 ${awayPercent.toFixed(0)}퍼센트`;
 
   return (
-    <div style={styles.container}>
-      <div style={styles.title}>
-        승리 확률
+    <section className={styles.container} aria-label={accessibleText}>
+      <div className={styles.heading}>
+        <h2 className={styles.title}>승부 확률</h2>
         {minute !== undefined && (
-          <span style={styles.minute}> ({minute}분)</span>
+          <span className={styles.minute}>{formatMatchMinute(minute)}</span>
         )}
       </div>
 
-      <div style={styles.bar}>
-        <div style={{ ...styles.home, width: `${clamp(h)}%` }} />
-        <div style={{ ...styles.draw, width: `${clamp(d)}%` }} />
-        <div style={{ ...styles.away, width: `${clamp(a)}%` }} />
+      <div className={styles.values} aria-hidden="true">
+        <div className={`${styles.value} ${styles.homeValue}`}>
+          <span>홈 승리</span>
+          <strong>{homePercent.toFixed(0)}%</strong>
+        </div>
+        <div className={`${styles.value} ${styles.drawValue}`}>
+          <span>무승부</span>
+          <strong>{drawPercent.toFixed(0)}%</strong>
+        </div>
+        <div className={`${styles.value} ${styles.awayValue}`}>
+          <span>원정 승리</span>
+          <strong>{awayPercent.toFixed(0)}%</strong>
+        </div>
       </div>
 
-      <div style={styles.label}>
-        홈 {h.toFixed(0)}% | 무 {d.toFixed(0)}% | 원정 {a.toFixed(0)}%
-      </div>
-    </div>
+      <svg
+        className={styles.bar}
+        viewBox="0 0 100 12"
+        preserveAspectRatio="none"
+        role="img"
+        aria-label={accessibleText}
+      >
+        <rect className={styles.home} x="0" y="0" width={homePercent} height="12" />
+        <rect className={styles.draw} x={homePercent} y="0" width={drawPercent} height="12" />
+        <rect className={styles.away} x={homePercent + drawPercent} y="0" width={awayPercent} height="12" />
+      </svg>
+    </section>
   );
 }
-
-const styles = {
-  container: {
-    maxWidth: "600px",
-    margin: "24px auto 0",
-  },
-  title: {
-    marginBottom: "6px",
-    fontSize: "14px",
-    fontWeight: "bold",
-    opacity: 0.95,
-    textAlign: "center",
-  },
-  minute: {
-    fontSize: "12px",
-    opacity: 0.7,
-    marginLeft: "4px",
-  },
-  bar: {
-    display: "flex",
-    height: "20px",
-    borderRadius: "10px",
-    overflow: "hidden",
-    background: "#444",
-  },
-  home: {
-    background: "#c0392b",
-    transition: "width 0.4s ease",
-  },
-  draw: {
-    background: "#7f8c8d",
-    transition: "width 0.4s ease",
-  },
-  away: {
-    background: "#16a085",
-    transition: "width 0.4s ease",
-  },
-  label: {
-    marginTop: "8px",
-    fontSize: "14px",
-    opacity: 0.9,
-    textAlign: "center",
-  },
-};
 
 export default WinProbabilityBar;

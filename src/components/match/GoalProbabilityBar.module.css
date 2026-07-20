@@ -1,0 +1,50 @@
+.container {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  color: var(--color-muted);
+  font-size: 13px;
+}
+
+.header strong {
+  color: var(--color-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.bar {
+  width: 100%;
+  height: 10px;
+  overflow: hidden;
+  appearance: none;
+  border: 0;
+  border-radius: var(--radius-control);
+  background: var(--color-bg);
+}
+
+.bar::-webkit-progress-bar {
+  border-radius: var(--radius-control);
+  background: var(--color-bg);
+}
+
+.bar::-webkit-progress-value {
+  border-radius: var(--radius-control);
+  background: var(--probability-color);
+}
+
+.bar::-moz-progress-bar {
+  border-radius: var(--radius-control);
+  background: var(--probability-color);
+}
+
+.home {
+  --probability-color: var(--color-home);
+}
+
+.away {
+  --probability-color: var(--color-away);
+}

@@ -1,5 +1,6 @@
 import WinProbabilityBar from "./WinProbabilityBar";
 import GoalProbabilityBar from "./GoalProbabilityBar";
+import styles from "./MatchSummary.module.css";
 
 function MatchSummary({ match, probability }) {
   if (!match) return null;
@@ -21,35 +22,8 @@ function MatchSummary({ match, probability }) {
     probability?.awayGoal ??
     null;
 
-  const d = new Date(match.matchDate);
-  const dateText = `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(
-    2,
-    "0"
-  )}.${String(d.getDate()).padStart(2, "0")} ${String(
-    d.getHours()
-  ).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
-
   return (
-    <div style={styles.wrapper}>
-      <div style={styles.date}>{dateText}</div>
-
-      <div style={styles.scoreRow}>
-        <div style={styles.team}>
-          <img src={match.homeTeam.logoUrl} alt="" style={styles.logo} />
-          <span>{match.homeTeam.name}</span>
-        </div>
-
-        <div style={styles.score}>
-          {match.finalScore.home} - {match.finalScore.away}
-        </div>
-
-        <div style={styles.team}>
-          <span>{match.awayTeam.name}</span>
-          <img src={match.awayTeam.logoUrl} alt="" style={styles.logo} />
-        </div>
-      </div>
-
-      {/* ✅ 승리 확률 */}
+    <div className={styles.summary}>
       <WinProbabilityBar
         home={homeWin}
         draw={drawWin}
@@ -57,62 +31,27 @@ function MatchSummary({ match, probability }) {
         minute={time}
       />
 
-      {/* ✅ 골 확률 (값 있을 때만) */}
       {(homeGoal != null || awayGoal != null) && (
-        <div style={{ marginTop: "20px" }}>
+        <section className={styles.goalSection}>
+          <h2 className={styles.goalTitle}>다음 득점 확률</h2>
           {homeGoal != null && (
             <GoalProbabilityBar
-              label="홈팀 골 확률"
+              label={`${match.homeTeam.name} 득점`}
               value={homeGoal}
-              color="#e74c3c"
+              variant="home"
             />
           )}
           {awayGoal != null && (
             <GoalProbabilityBar
-              label="원정팀 골 확률"
+              label={`${match.awayTeam.name} 득점`}
               value={awayGoal}
-              color="#3498db"
+              variant="away"
             />
           )}
-        </div>
+        </section>
       )}
     </div>
   );
 }
-
-const styles = {
-  wrapper: {
-    padding: "40px 24px",
-    background: "#2a2a2a",
-    textAlign: "center",
-  },
-  date: {
-    marginBottom: "16px",
-    opacity: 0.8,
-  },
-  scoreRow: {
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    gap: "48px",
-    marginBottom: "24px",
-    flexWrap: "wrap",
-  },
-  team: {
-    display: "flex",
-    alignItems: "center",
-    gap: "12px",
-    fontSize: "18px",
-  },
-  logo: {
-    width: "48px",
-    height: "48px",
-    objectFit: "contain",
-  },
-  score: {
-    fontSize: "36px",
-    fontWeight: "bold",
-  },
-};
 
 export default MatchSummary;

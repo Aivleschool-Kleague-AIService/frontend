@@ -1,13 +1,17 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useLocation, useParams, useNavigate } from "react-router-dom";
-import MatchMetaBar from "../components/match/MatchMetaBar";
+import TimelineController from "../components/match/TimelineController";
+import MatchHeader from "../components/match/MatchHeader";
 import MatchSummary from "../components/match/MatchSummary";
+import ProbabilityChart from "../components/match/ProbabilityChart";
 import TeamStatsTable from "../components/match/TeamStatsTable";
 import {
   getMatchTeamSummary,
   getMatchGoalProbabilities,
   getMatchWinProbabilities,
 } from "../api/matchApi";
+import styles from "./MatchDetailPage.module.css";
+import { normalizeWinTimeline } from "../features/matches/utils/normalizeWinTimeline";
 
 function MatchDetailPage() {
   const { matchId } = useParams();
@@ -52,24 +56,30 @@ function MatchDetailPage() {
   }, [matchId]);
 
   /* 최대 분 */
-  const maxMinute = Math.max(
-    goalTimeline.length > 0
-      ? goalTimeline[goalTimeline.length - 1].minute
-      : 0,
-    winTimeline.length > 0
-      ? winTimeline[winTimeline.length - 1].minute
-      : 0
+  const normalizedWinTimeline = useMemo(
+    () => normalizeWinTimeline(winTimeline),
+    [winTimeline]
   );
 
-  /* 재생 */
+  const maxMinute = Math.max(
+    ...goalTimeline.map((point) => Number(point.minute) || 0),
+    ...normalizedWinTimeline.map((point) => point.minute),
+    0
+  );
+
   useEffect(() => {
     if (!playing || minute >= maxMinute) return;
 
-    const timer = setInterval(() => {
-      setMinute((prev) => prev + 1);
+    const timer = setTimeout(() => {
+      const nextMinute = Math.min(minute + 1, maxMinute);
+      setMinute(nextMinute);
+
+      if (nextMinute >= maxMinute) {
+        setPlaying(false);
+      }
     }, 500);
 
-    return () => clearInterval(timer);
+    return () => clearTimeout(timer);
   }, [playing, minute, maxMinute]);
 
   /* 현재 분 데이터 */
@@ -77,7 +87,7 @@ function MatchDetailPage() {
     goalTimeline.find((p) => p.minute === minute) ?? null;
 
   const currentWin =
-    winTimeline.find((p) => p.minute === minute) ?? null;
+    normalizedWinTimeline.find((point) => point.minute === minute) ?? null;
 
   const currentProb =
     currentGoal || currentWin
@@ -95,39 +105,21 @@ function MatchDetailPage() {
             currentGoal?.away_goal_probability ??
             null,
 
-          // ✅ 승률: 무조건 퍼센트로 변환
-          home:
-            currentWin?.homeWinProbability != null
-              ? currentWin.homeWinProbability * 100
-              : currentWin?.home != null
-              ? currentWin.home * 100
-              : currentWin?.home_win_probability != null
-              ? currentWin.home_win_probability * 100
-              : null,
-
-          draw:
-            currentWin?.drawWinProbability != null
-              ? currentWin.drawWinProbability * 100
-              : currentWin?.draw != null
-              ? currentWin.draw * 100
-              : currentWin?.draw_win_probability != null
-              ? currentWin.draw_win_probability * 100
-              : null,
-
-          away:
-            currentWin?.awayWinProbability != null
-              ? currentWin.awayWinProbability * 100
-              : currentWin?.away != null
-              ? currentWin.away * 100
-              : currentWin?.away_win_probability != null
-              ? currentWin.away_win_probability * 100
-              : null,
+          home: currentWin?.home ?? null,
+          draw: currentWin?.draw ?? null,
+          away: currentWin?.away ?? null,
         }
       : null;
 
   const handleTogglePlay = () => {
+    if (playing) {
+      setPlaying(false);
+      return;
+    }
+
+    if (maxMinute <= 0) return;
     if (minute >= maxMinute) setMinute(0);
-    setPlaying((p) => !p);
+    setPlaying(true);
   };
 
   const handleReset = () => {
@@ -142,33 +134,62 @@ function MatchDetailPage() {
 
   if (!match) {
     return (
-      <div style={{ background: "#1c1c1c", color: "#fff", padding: "16px" }}>
-        <h2>경기 정보를 불러올 수 없습니다.</h2>
-        <button onClick={() => navigate("/rounds")}>라운드로 이동</button>
-        <p>matchId: {matchId}</p>
+      <div className={styles.page}>
+        <section className={styles.missingMatch}>
+          <h1>경기 정보를 불러올 수 없습니다.</h1>
+          <p>라운드 목록에서 경기를 다시 선택해 주세요.</p>
+          <button type="button" onClick={() => navigate("/rounds")}>
+            라운드로 이동
+          </button>
+          <p>matchId: {matchId}</p>
+        </section>
       </div>
     );
   }
 
   return (
-    <div style={{ minHeight: "100vh", background: "#1c1c1c", color: "#fff" }}>
-      <MatchMetaBar
-        match={match}
-        minute={minute}
-        playing={playing}
-        onToggle={handleTogglePlay}
-        onReset={handleReset}
-        onChangeMinute={handleChangeMinute}
-        maxMinute={maxMinute}
-      />
+    <div className={styles.page}>
+      <button
+        className={styles.backButton}
+        type="button"
+        onClick={() => navigate("/rounds")}
+      >
+        ← {match.round?.roundNumber ?? ""}R 경기 목록
+      </button>
 
-      {currentProb && (
-        <MatchSummary match={match} probability={currentProb} />
-      )}
+      <div className={styles.content}>
+        <MatchHeader match={match} />
 
-      {teamSummary && (
-        <TeamStatsTable match={match} stats={teamSummary} />
-      )}
+        <TimelineController
+          minute={minute}
+          maxMinute={maxMinute}
+          playing={playing}
+          onToggle={handleTogglePlay}
+          onReset={handleReset}
+          onChangeMinute={handleChangeMinute}
+        />
+
+        {currentProb && (
+          <MatchSummary match={match} probability={currentProb} />
+        )}
+
+        {!currentProb && (
+          <div className={styles.probabilityPlaceholder} role="status">
+            선택한 시간의 확률 데이터가 없습니다.
+          </div>
+        )}
+
+        <ProbabilityChart
+          timeline={normalizedWinTimeline}
+          minute={minute}
+          maxMinute={maxMinute}
+          onChangeMinute={handleChangeMinute}
+        />
+
+        {teamSummary && (
+          <TeamStatsTable match={match} stats={teamSummary} />
+        )}
+      </div>
     </div>
   );
 }
