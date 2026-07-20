@@ -5,7 +5,6 @@ import styles from "./MatchSummary.module.css";
 function MatchSummary({ match, probability }) {
   if (!match) return null;
 
-  // ✅ 백엔드 데이터 안전 처리
   const time = probability?.minute ?? probability?.time ?? 0;
 
   const homeWin = probability?.home ?? null;

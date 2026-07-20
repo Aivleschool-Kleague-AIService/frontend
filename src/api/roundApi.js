@@ -1,10 +1,6 @@
-import axios from "axios";
-
-const api = axios.create({
-  baseURL: "http://localhost:8080", // 백엔드 주소
-});
+import apiClient from "./client";
 
 export const getRounds = async () => {
-  const response = await api.get("/rounds");
+  const response = await apiClient.get("/rounds");
   return response.data;
 };

@@ -1,26 +1,25 @@
-import axios from "axios";
-
-const api = axios.create({
-  baseURL: "http://localhost:8080",
-});
+import apiClient from "./client";
 
 export const getMatchesByRound = async (roundId) => {
-  const res = await api.get(`/rounds/${roundId}/matches`);
+  const res = await apiClient.get(`/rounds/${roundId}/matches`);
   return res.data;
 };
 
-export const getMatchTeamSummary = async (matchId) => {
-  const res = await api.get(`/matches/${matchId}/team-summary`);
+export const getMatchDetail = async (matchId, { signal } = {}) => {
+  const res = await apiClient.get(`/matches/${matchId}`, { signal });
   return res.data;
 };
 
-export const getMatchGoalProbabilities = async (matchId) => {
-  const res = await api.get(`/matches/${matchId}/goal-probabilities`);
+export const getMatchGoalProbabilities = async (matchId, { signal } = {}) => {
+  const res = await apiClient.get(`/matches/${matchId}/goal-probabilities`, {
+    signal,
+  });
   return res.data;
 };
 
-// ✅ 승률 타임라인 API 추가
-export const getMatchWinProbabilities = async (matchId) => {
-  const res = await api.get(`/matches/${matchId}/win-probabilities`);
+export const getMatchWinProbabilities = async (matchId, { signal } = {}) => {
+  const res = await apiClient.get(`/matches/${matchId}/win-probabilities`, {
+    signal,
+  });
   return res.data;
 };

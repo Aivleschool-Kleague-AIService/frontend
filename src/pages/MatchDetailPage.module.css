@@ -1,5 +1,5 @@
 .page {
-  min-height: calc(100vh - 88px);
+  min-height: calc(100vh - 72px);
   padding: var(--space-4) var(--space-4) var(--space-6);
 }
 
@@ -22,8 +22,7 @@
   gap: var(--space-3);
 }
 
-.probabilityPlaceholder,
-.missingMatch {
+.probabilityPlaceholder {
   padding: var(--space-5) var(--space-4);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-card);
@@ -32,31 +31,9 @@
   text-align: center;
 }
 
-.missingMatch {
-  display: grid;
-  min-height: 320px;
-  align-content: center;
-  justify-items: center;
-}
-
-.missingMatch h1 {
-  color: var(--color-text);
-  font-size: 24px;
-}
-
-.missingMatch button {
-  min-height: 44px;
-  padding: 0 var(--space-3);
-  border: 1px solid var(--color-accent);
-  border-radius: var(--radius-control);
-  background: transparent;
-  color: var(--color-accent);
-  font-weight: 700;
-}
-
 @media (max-width: 767px) {
   .page {
-    min-height: calc(100vh - 72px);
+    min-height: calc(100vh - 64px);
     padding: var(--space-3) var(--space-3) var(--space-5);
   }
 }

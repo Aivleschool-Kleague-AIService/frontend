@@ -1,69 +1,38 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocation, useParams, useNavigate } from "react-router-dom";
 import TimelineController from "../components/match/TimelineController";
 import MatchHeader from "../components/match/MatchHeader";
 import MatchSummary from "../components/match/MatchSummary";
 import ProbabilityChart from "../components/match/ProbabilityChart";
-import TeamStatsTable from "../components/match/TeamStatsTable";
-import {
-  getMatchTeamSummary,
-  getMatchGoalProbabilities,
-  getMatchWinProbabilities,
-} from "../api/matchApi";
+import LoadingState from "../components/ui/LoadingState";
+import ErrorState from "../components/ui/ErrorState";
+import EmptyState from "../components/ui/EmptyState";
 import styles from "./MatchDetailPage.module.css";
-import { normalizeWinTimeline } from "../features/matches/utils/normalizeWinTimeline";
+import useMatchDetail from "../features/matches/hooks/useMatchDetail";
 
 function MatchDetailPage() {
   const { matchId } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
 
-  const match = location.state?.match;
+  const initialMatch = location.state?.match ?? null;
 
   const [minute, setMinute] = useState(0);
   const [playing, setPlaying] = useState(false);
 
-  const [teamSummary, setTeamSummary] = useState(null);
-  const [goalTimeline, setGoalTimeline] = useState([]);
-  const [winTimeline, setWinTimeline] = useState([]);
-
-  /* 팀 요약 */
-  useEffect(() => {
-    if (!matchId) return;
-    getMatchTeamSummary(matchId)
-      .then(setTeamSummary)
-      .catch(console.error);
-  }, [matchId]);
-
-  /* 골 확률 */
-  useEffect(() => {
-    if (!matchId) return;
-    getMatchGoalProbabilities(matchId)
-      .then((res) => {
-        setGoalTimeline(res.timeline ?? []);
-      })
-      .catch(console.error);
-  }, [matchId]);
-
-  /* 승률 */
-  useEffect(() => {
-    if (!matchId) return;
-    getMatchWinProbabilities(matchId)
-      .then((res) => {
-        setWinTimeline(res.timeline ?? []);
-      })
-      .catch(console.error);
-  }, [matchId]);
-
-  /* 최대 분 */
-  const normalizedWinTimeline = useMemo(
-    () => normalizeWinTimeline(winTimeline),
-    [winTimeline]
-  );
+  const {
+    match,
+    goalTimeline,
+    winTimeline,
+    loading,
+    error,
+    empty,
+    retry,
+  } = useMatchDetail(matchId, initialMatch);
 
   const maxMinute = Math.max(
     ...goalTimeline.map((point) => Number(point.minute) || 0),
-    ...normalizedWinTimeline.map((point) => point.minute),
+    ...winTimeline.map((point) => point.minute),
     0
   );
 
@@ -87,24 +56,14 @@ function MatchDetailPage() {
     goalTimeline.find((p) => p.minute === minute) ?? null;
 
   const currentWin =
-    normalizedWinTimeline.find((point) => point.minute === minute) ?? null;
+    winTimeline.find((point) => point.minute === minute) ?? null;
 
   const currentProb =
     currentGoal || currentWin
       ? {
           minute,
-
-          // 골 확률
-          homeGoalProbability:
-            currentGoal?.homeGoalProbability ??
-            currentGoal?.home_goal_probability ??
-            null,
-
-          awayGoalProbability:
-            currentGoal?.awayGoalProbability ??
-            currentGoal?.away_goal_probability ??
-            null,
-
+          homeGoalProbability: currentGoal?.homeGoalProbability ?? null,
+          awayGoalProbability: currentGoal?.awayGoalProbability ?? null,
           home: currentWin?.home ?? null,
           draw: currentWin?.draw ?? null,
           away: currentWin?.away ?? null,
@@ -132,21 +91,6 @@ function MatchDetailPage() {
     setMinute(value);
   };
 
-  if (!match) {
-    return (
-      <div className={styles.page}>
-        <section className={styles.missingMatch}>
-          <h1>경기 정보를 불러올 수 없습니다.</h1>
-          <p>라운드 목록에서 경기를 다시 선택해 주세요.</p>
-          <button type="button" onClick={() => navigate("/rounds")}>
-            라운드로 이동
-          </button>
-          <p>matchId: {matchId}</p>
-        </section>
-      </div>
-    );
-  }
-
   return (
     <div className={styles.page}>
       <button
@@ -154,40 +98,48 @@ function MatchDetailPage() {
         type="button"
         onClick={() => navigate("/rounds")}
       >
-        ← {match.round?.roundNumber ?? ""}R 경기 목록
+        ← {match?.round?.roundNumber ? `${match.round.roundNumber}R ` : ""}경기 목록
       </button>
 
       <div className={styles.content}>
-        <MatchHeader match={match} />
+        {match && <MatchHeader match={match} />}
 
-        <TimelineController
-          minute={minute}
-          maxMinute={maxMinute}
-          playing={playing}
-          onToggle={handleTogglePlay}
-          onReset={handleReset}
-          onChangeMinute={handleChangeMinute}
-        />
+        {loading && <LoadingState label="경기 분석 데이터를 불러오는 중입니다." />}
 
-        {currentProb && (
-          <MatchSummary match={match} probability={currentProb} />
+        {!loading && error && <ErrorState message={error} onRetry={retry} />}
+
+        {!loading && !error && empty && (
+          <EmptyState message="이 경기에 등록된 분석 데이터가 없습니다." />
         )}
 
-        {!currentProb && (
-          <div className={styles.probabilityPlaceholder} role="status">
-            선택한 시간의 확률 데이터가 없습니다.
-          </div>
-        )}
+        {!loading && !error && !empty && match && (
+          <>
+            <TimelineController
+              minute={minute}
+              maxMinute={maxMinute}
+              playing={playing}
+              onToggle={handleTogglePlay}
+              onReset={handleReset}
+              onChangeMinute={handleChangeMinute}
+            />
 
-        <ProbabilityChart
-          timeline={normalizedWinTimeline}
-          minute={minute}
-          maxMinute={maxMinute}
-          onChangeMinute={handleChangeMinute}
-        />
+            {currentProb && (
+              <MatchSummary match={match} probability={currentProb} />
+            )}
 
-        {teamSummary && (
-          <TeamStatsTable match={match} stats={teamSummary} />
+            {!currentProb && (
+              <div className={styles.probabilityPlaceholder} role="status">
+                선택한 시간의 확률 데이터가 없습니다.
+              </div>
+            )}
+
+            <ProbabilityChart
+              timeline={winTimeline}
+              minute={minute}
+              maxMinute={maxMinute}
+              onChangeMinute={handleChangeMinute}
+            />
+          </>
         )}
       </div>
     </div>
